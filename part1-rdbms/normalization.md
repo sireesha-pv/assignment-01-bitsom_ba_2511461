@@ -1,60 +1,58 @@
-## Column Index Reference
-| #  | Column Name        |
-|----|--------------------|
-| 1  | order_id           |
-| 2  | customer_id        |
-| 3  | customer_name      |
-| 4  | customer_email     |
-| 5  | customer_city      |
-| 6  | product_id         |
-| 7  | product_name       |
-| 8  | category           |
-| 9  | unit_price         |
-| 10 | quantity           |
-| 11 | order_date         |
-| 12 | sales_rep_id       |
-| 13 | sales_rep_name     |
-| 14 | sales_rep_email    |
-| 15 | office_address     |
+##   Examples of Anomalies
 
 ---
 
-## Anomalies Summary
-
 ### 1. Insert Anomaly
-- **Example Row:** 61  
-- **Columns Involved:** 6 (product_id), 7 (product_name)  
-- **Issue:**  
-  Cannot insert a new product (e.g., P009) without filling unrelated fields like order_id, customer, and sales_rep details.
+- **Example Row Reference:** Product **P003 (Desk Chair)** appears in rows like 30, 31  
+- **Columns Involved:** 6 (product_id), 7 (product_name), 9 (unit_price)
+
+- **Issue:**
+  If you want to insert a new product:
+  - `P010, Monitor, Electronics, 12000`
+
+   You cannot insert it independently  
+   You must provide:
+  - order_id (Col 1)
+  - customer details (Cols 2–5)
+  - sales rep details (Cols 12–15)
 
 ---
 
 ### 2. Update Anomaly
-- **Example Rows:** 2, 3, 4  
-- **Columns Involved:** 13 (sales_rep_name), 14 (sales_rep_email)  
+- **Example Rows:** 1, 6, 7  
+- **Columns Involved:** 2–5 (customer details)
 
-| Row | sales_rep_name | sales_rep_email |
-|-----|----------------|-----------------|
-| 2   | Deepak Joshi   | deepak@corp.com |
-| 3   | Deepak Joshi   | deepak@corp.com |
-| 4   | Deepak Joshi   | deepak@corp.com |
+| Row | customer_name | customer_email     | customer_city |
+|-----|---------------|--------------------|---------------|
+| 1   | Rohan Mehta  | rohan@gmail.com    | Mumbai        |
+| 6   | Rohan Mehta  | rohan@gmail.com    | Mumbai        |
+| 7   | Rohan Mehta  | rohan@gmail.com    | Mumbai        |
 
-- **Issue:**  
-  If the email changes, it must be updated in multiple rows. Missing any row causes inconsistency.
+- **Issue:**
+  If **Rohan Mehta** changes city:
+  - You must update **Column 5** in all rows  
+  - Missing one → inconsistent data
 
 ---
 
 ### 3. Delete Anomaly
-- **Example Row:** 61  
-- **Columns Involved:** 6 (product_id), 7 (product_name)  
-- **Issue:**  
-  Deleting this row removes the only record of product P008 (Webcam), resulting in loss of product information.
+- **Example Row:** 32  
+- **Columns Involved:** 6 (product_id), 7 (product_name)
+
+- Row 32 contains:
+  - Product **P003 (Desk Chair)** for a specific customer
+
+- **Issue:**
+  If this row is the only record for a **specific customer-product relationship**:
+  - Deleting it removes:
+    - Product purchase history
+    - Possibly customer-product association
 
 ---
 
-## Final Summary
-| Anomaly Type   | Rows     | Columns     | Problem |
-|----------------|----------|-------------|---------|
-| Insert         | 61       | 6–7         | Cannot add product without full order |
-| Update         | 2, 3, 4  | 13–14       | Repeated data causes inconsistency |
-| Delete         | 61       | 6–7         | Deleting row removes product info |
+## Summary 
+| Anomaly Type | Rows     | Columns   | Problem |
+|--------------|----------|-----------|---------|
+| Insert       | 30–31    | 6–9       | Cannot add product without full order |
+| Update       | 1, 6, 7  | 2–5       | Repeated customer data |
+| Delete       | 32       | 6–7       | Loss of product/customer relationship |
